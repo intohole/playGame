@@ -1,0 +1,4 @@
+.DS_Store
+out/test_out.txt
+out/test_final*.txt
+__pycache__/
