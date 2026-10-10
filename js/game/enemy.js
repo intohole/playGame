@@ -42,6 +42,10 @@
       if (this.raged) s *= 2;
       return s;
     }
+    get dispName() {
+      const sk = G.roleDef && G.roleDef.skins[this.key];
+      return sk ? sk[0] : this.def.name;
+    }
     get progress() { return this.d / this.path.total; }
     update(dt) {
       if (!this.alive) return;

@@ -7,7 +7,9 @@
         <div class="home-hero">
           <div class="shine-title">带薪守塔</div>
           <div class="sub">💢 怒砸键盘，硬刚工作怪 —— 上班摸鱼，带薪守塔</div>
+          <div class="vent-marquee" aria-hidden="true"><div class="vm-track"><span v-for="(w, i) in marquee" :key="i">{{ w }}<i>·</i></span></div></div>
           <div style="margin-top:16px; display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
+            <span class="badge role-badge" :title="curRole.perk">{{ curRole.emoji }} {{ curRole.name }}</span>
             <span class="badge">🎖️ {{ title }}</span>
             <span class="badge">⭐ {{ Save.totalStars() }} / 45</span>
             <span class="badge" v-if="US.daily.streak" style="color:var(--amber)">🔥 连续摸鱼 {{ US.daily.streak }} 天</span>
@@ -50,12 +52,14 @@
       const title = computed(() => currentTitle());
       const done = computed(() => Save.dailyDone());
       const achCount = computed(() => Object.keys(US.ach).length);
+      const curRole = computed(() => ROLES[US.role] || ROLES.dev);
+      const marquee = computed(() => VENTS.marquee.concat(VENTS.marquee));
       function toggleSfx() { US.settings.sfx = !US.settings.sfx; SFX.setEnabled(US.settings.sfx); Save.save(); }
       function toggleDis() { US.settings.disguise = !US.settings.disguise; Save.save(); }
       function resetAll() {
         if (confirm('确定清空全部进度？摸鱼需谨慎，重置无法恢复。')) { Save.reset(); location.reload(); }
       }
-      return { US, Save, ACHIEVEMENTS, title, done, achCount, toggleSfx, toggleDis, resetAll };
+      return { US, Save, ACHIEVEMENTS, title, done, achCount, curRole, marquee, toggleSfx, toggleDis, resetAll };
     }
   };
   const LevelsScreen = {
@@ -89,6 +93,14 @@
           <div class="card modal" style="max-width:560px">
             <h2 style="text-align:center">LEVEL {{ pickLv.id }} · {{ pickLv.name }}</h2>
             <p style="text-align:center; color:var(--ink-dim); font-size:12.5px">选择入职难度（波间福利三选一在所有难度生效）</p>
+            <div class="role-head">今天你是 ——</div>
+            <div class="role-row" role="radiogroup" aria-label="选择岗位">
+              <button v-for="r in ROLES" :key="r.key" class="role-chip" :class="{ on: US.role === r.key }"
+                      role="radio" :aria-checked="US.role === r.key" :title="r.perk" @click="pickRole(r)">
+                <span class="re">{{ r.emoji }}</span><span class="rn">{{ r.name }}</span>
+              </button>
+            </div>
+            <div class="role-perk"><b>{{ curRole.emoji }} {{ curRole.name }}</b>「{{ curRole.tagline }}」<br><span>{{ curRole.perk }}</span></div>
             <div style="display:flex; flex-direction:column; gap:10px; margin:16px 0">
               <button v-for="df in DIFFS" :key="df.key" class="diff-opt"
                       :class="{dim: !canPlay(df)}" :disabled="!canPlay(df)"
@@ -120,6 +132,7 @@
       const chapters = [LEVELS.slice(0, 5), LEVELS.slice(5, 10), LEVELS.slice(10, 15)];
       const endless = LEVELS[15];
       const pickLv = Vue.ref(null);
+      const curRole = Vue.computed(() => ROLES[US.role] || ROLES.dev);
       function unlocked(lv) {
         if (lv.id === 1) return true;
         if (lv.endless) return (US.stars[15] || 0) > 0;
@@ -130,13 +143,14 @@
         if (df.key !== 'crisis') return true;
         return (US.stars[pickLv.value.id] || 0) >= 3;
       }
+      function pickRole(r) { US.role = r.key; Save.save(); SFX.click(); }
       function start(df) {
         const id = pickLv.value.id;
         pickLv.value = null;
         SFX.click();
-        emit('play', id, df.key);
+        emit('play', id, df.key, US.role);
       }
-      return { US, chapters, endless, unlocked, pickLv, DIFFS, canPlay, start };
+      return { US, chapters, endless, unlocked, pickLv, DIFFS, ROLES, curRole, canPlay, pickRole, start };
     }
   };
   const TechScreen = {

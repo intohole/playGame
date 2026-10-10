@@ -48,7 +48,15 @@ with sync_playwright() as p:
     page.screenshot(path='out/shots/perm_1_pick.png')
 
     mod_before = page.evaluate("[G.mods.dmg, G.mods.rate, G.mods.bounty, G.mods.waveBonus, G.mods.rage]")
-    pick_res = page.evaluate("(() => { const n = G.ui.picking.map(c => c.name); G.pickCard(0); return { n, state: G.ui.state, gold: G.gold }; })()")
+    pick_res = page.evaluate("""(() => {
+      const good = ['加班费', '报销单', '手速训练', '团队协作', '情绪劳动', '年终奖池', '财务自由', '办公室之王', '通宵狂热'];
+      let tries = 0;
+      while (!G.ui.picking.some(c => good.includes(c.name)) && tries++ < 30) G.openPicker();
+      const idx = G.ui.picking.findIndex(c => good.includes(c.name));
+      const n = G.ui.picking.map(c => c.name);
+      G.pickCard(idx);
+      return { n, idx, state: G.ui.state, gold: G.gold };
+    })()""")
     mod_after = page.evaluate("[G.mods.dmg, G.mods.rate, G.mods.bounty, G.mods.waveBonus, G.mods.rage]")
     check('选卡后回到布阵态', pick_res['state'] == 'build', pick_res)
     check('选卡效果写入 mods 总线', mod_after != mod_before, f"{mod_before} -> {mod_after}")

@@ -72,7 +72,7 @@
       if (hit.alive && !hit.def.boss && !hit.fly) hit.d = Math.max(0, hit.d - 9);
       U.shake(hit.def.boss ? 2 : 3.5);
       SFX.vent();
-      this.emitText('怼!', hit.x, hit.y - 22, '#ff8a5c', 17);
+      this.emitText(U.pick(VENTS.pokes), hit.x, hit.y - 22, '#ff8a5c', 17);
       this.emitHit(hit.x, hit.y, '#ff8a5c', 5);
       this.ventCount++;
       this.rageGain(6);

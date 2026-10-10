@@ -6,7 +6,7 @@
         waveIdx: 0, waveTotal: 10, combo: 0, speed: 1, paused: false,
         placing: null, selectedId: 0, selPanel: null, buffs: [], nextPreview: [], autoWave: false,
         isEndless: false, chestsOpen: 0, bossAlive: false, levelName: '', waveInProg: false, rage: 0,
-        picking: null, cardNo: 0, diffName: ''
+        picking: null, cardNo: 0, diffName: '', roleName: '', roleEmoji: ''
       });
       this.enemies = []; this.towers = []; this.projs = [];
       this.particles = []; this.texts = []; this.chests = [];
@@ -16,7 +16,7 @@
       this.hover = null; this.result = null; this.timeScale = 1;
       this.chestCount = 0; this.guaranteeChest = true;
     }
-    start(levelId, tags, isDaily, diffKey, revenge) {
+    start(levelId, tags, isDaily, diffKey, revenge, roleKey) {
       tags = tags || [];
       const base = LEVELS.find(l => l.id === levelId);
       const diff = DIFFS.find(d => d.key === diffKey) || DIFFS[1];
@@ -44,6 +44,7 @@
       this.timeScale = 1;
       this.initMods();
       this.initRage();
+      this.applyRole(roleKey);
       if (revenge) this.grantRevengeCard();
       Object.assign(this.ui, {
         screen: 'game', state: 'build', gold: this.gold, lives: this.lives, maxLives: this.maxLives,
@@ -157,6 +158,7 @@
       this.emitText('+' + Math.round(bounty), e.x, e.y - 14, '#fbbf24', 12);
       this.emitHit(e.x, e.y, '#fbbf24', e.def.boss ? 26 : 8);
       this.emitShatter(e);
+      this.ventKill(e);
       this.rageGain(e.def.boss ? 40 : 3);
       if (e.def.boss) {
         SFX.bossDie();
@@ -164,7 +166,7 @@
         this.slowT = 0.7;
         this.flashT = 0.35;
         this.ui.bossAlive = false;
-        this.emitText(e.def.name + ' 被击败!', CANVAS_W / 2, 80, '#4ade80', 20);
+        this.emitText(e.dispName + ' 被击败!', CANVAS_W / 2, 80, '#4ade80', 20);
       } else SFX.coin(this.combo % 5);
       this.comboRainCheck();
       if (e.def.split) {

@@ -277,7 +277,7 @@
       ctx.fillStyle = '#ffd7d7';
       ctx.font = '900 11px ui-sans-serif, sans-serif';
       ctx.textAlign = 'center';
-      ctx.fillText(boss.def.name + '  ' + U.fmt(boss.hp) + ' / ' + U.fmt(boss.maxHp), CANVAS_W / 2 + 8, y0 + 17);
+      ctx.fillText(boss.dispName + '  ' + U.fmt(boss.hp) + ' / ' + U.fmt(boss.maxHp), CANVAS_W / 2 + 8, y0 + 17);
       ctx.restore();
     }
   });

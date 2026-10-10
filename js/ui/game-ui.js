@@ -8,24 +8,35 @@
         <div class="stat"><span class="ico">🌊</span>{{ ui.waveIdx }}<span style="color:var(--ink-dim); font-size:12px">/{{ ui.isEndless ? '∞' : ui.waveTotal }}</span></div>
         <div class="stat" v-if="ui.combo >= 5" style="color:var(--amber)">🔥×{{ ui.combo }}</div>
         <div class="spacer"></div>
+        <span class="hud-role" v-if="ui.roleName" :title="G.roleDef ? G.roleDef.perk : ''">{{ ui.roleEmoji }} {{ ui.roleName }}</span>
         <div class="wave-label">{{ ui.levelName }}<span v-if="ui.diffName !== '正式工'" style="margin-left:6px; color:var(--amber)">{{ ui.diffName }}</span></div>
-        <button class="icon-btn rage" :class="{ready: G.rageReady()}" @click="G.releaseRage()" title="怒砸键盘 (R)">💢</button>
-        <button class="icon-btn" :class="{active: ui.speed === 2}" @click="G.toggleSpeed()" title="加速">⏩</button>
-        <button class="icon-btn" :class="{active: ui.autoWave}" @click="G.toggleAuto()" title="自动开波">🔁</button>
-        <button class="icon-btn" :class="{active: US.settings.sfx}" @click="toggleSfx" title="音效">{{ US.settings.sfx ? '🔊' : '🔇' }}</button>
-        <button class="icon-btn bosskey" @click="boss()" title="老板键 (Esc)">🕶️</button>
-        <button class="icon-btn" @click="G.togglePause()" title="暂停 (空格)">{{ ui.paused ? '▶️' : '⏸' }}</button>
-        <button class="icon-btn" @click="quit()" title="撤退">🚪</button>
+        <button class="icon-btn rage" :class="{ready: G.rageReady()}" @click="G.releaseRage()" title="怒砸键盘 (R)" aria-label="怒砸键盘">💢</button>
+        <button class="icon-btn" :class="{active: ui.speed === 2}" @click="G.toggleSpeed()" title="加速" aria-label="二倍速">⏩</button>
+        <button class="icon-btn" :class="{active: ui.autoWave}" @click="G.toggleAuto()" title="自动开波" aria-label="自动开波">🔁</button>
+        <button class="icon-btn" :class="{active: US.settings.sfx}" @click="toggleSfx" title="音效" :aria-label="US.settings.sfx ? '关闭音效' : '开启音效'">{{ US.settings.sfx ? '🔊' : '🔇' }}</button>
+        <button class="icon-btn bosskey" @click="boss()" title="老板键 (Esc)" aria-label="老板键伪装">🕶️</button>
+        <button class="icon-btn" @click="G.togglePause()" title="暂停 (空格)" :aria-label="ui.paused ? '继续' : '暂停'">{{ ui.paused ? '▶️' : '⏸' }}</button>
+        <button class="icon-btn" @click="quit()" title="撤退" aria-label="撤退选关">🚪</button>
       </div>
       <div class="stage-wrap" ref="stage">
         <canvas id="gameCanvas" width="960" height="576" class="game-canvas"
           @click="onClick" @mousemove="onMove" @mouseleave="G.hover = null"></canvas>
+        <transition name="banner">
+          <div class="wave-banner" v-if="banner" :key="banner.id" aria-live="polite">
+            <div class="wb-k">{{ banner.kicker }}</div>
+            <div class="wb-t">{{ banner.title }}</div>
+            <div class="wb-s">{{ banner.sub }}</div>
+          </div>
+        </transition>
         <div class="speed-chip" style="position:absolute" v-if="ui.speed === 2">⏩ 2倍速中</div>
         <div class="speed-chip" style="position:absolute; top:44px" v-if="ui.buffs.length" >☕ {{ ui.buffs[0].name }} {{ ui.buffs[0].t }}s</div>
         <div class="next-wave-hint" v-if="ui.state === 'build' && ui.nextPreview.length">
           <b style="color:var(--ink)">下一波敌人</b>
           <div class="icons">
-            <span class="pv" v-for="k in ui.nextPreview" :key="k"><canvas width="38" height="38" :data-k="'e_' + k"></canvas></span>
+            <span class="pv-col" v-for="k in ui.nextPreview" :key="k">
+              <span class="pv"><canvas width="38" height="38" :data-k="'e_' + k"></canvas></span>
+              <span class="pv-name">{{ skinName(k) }}</span>
+            </span>
           </div>
         </div>
         <button v-if="ui.state === 'build' && !ui.paused" class="start-wave-btn" @click="G.startWave()">
@@ -81,10 +92,12 @@
                 <span v-for="i in 3" :key="i" class="s" :style="{opacity: i <= G.result.stars ? 1 : .18}">⭐</span>
               </div>
               <p>{{ starTip }}</p>
+              <p class="result-vent">「{{ resultVent }}」</p>
             </template>
             <template v-else>
               <h2>💀 摸鱼时间被偷走了</h2>
               <p>坚持到第 {{ G.result.waves }} 波，击杀 {{ G.result.kills }} 只工作怪。<br>复仇再战：白得 1 张随机稀有福利卡 + 15% 金币！</p>
+              <p class="result-vent">「{{ resultVent }}」</p>
             </template>
             <div class="stat-table">
               <div class="tr"><span>击杀数</span><b>{{ G.result.kills }}</b></div>
@@ -146,6 +159,41 @@
         return '守住了，但漏了 ' + r.missed + ' 只。三星？再来一把的事';
       });
       const shareOk = Vue.ref(false);
+      const banner = Vue.ref(null);
+      let bannerId = 0;
+      const roleDef = Vue.computed(() => G.roleDef || ROLES[US.role]);
+      function skinName(k) {
+        const sk = roleDef.value && roleDef.value.skins[k];
+        return sk ? sk[0] : (ENEMY_DATA[k] ? ENEMY_DATA[k].name : k);
+      }
+      function showBanner(kicker, title, sub) {
+        bannerId++;
+        const my = bannerId;
+        banner.value = { id: my, kicker, title, sub };
+        setTimeout(() => { if (bannerId === my) banner.value = null; }, 2600);
+      }
+      function bossWaveType(n) {
+        const lv = G.level;
+        if (!lv) return null;
+        if (!lv.endless && lv.bossWave && lv.bossWave.wave === n) return lv.bossWave.enemy;
+        if (lv.endless && n % 5 === 0) return n % 10 === 0 ? 'bossKPI' : (n % 4 === 0 ? 'bossPPT' : 'bossMeeting');
+        return null;
+      }
+      Vue.watch(() => ui.waveIdx, n => {
+        if (n <= 0) return;
+        const bt = bossWaveType(n);
+        if (bt) {
+          const sk = roleDef.value && roleDef.value.skins[bt];
+          showBanner('⚠ BOSS 来袭', sk ? sk[0] : ENEMY_DATA[bt].name, sk ? '「' + sk[1] + '」' : '');
+        } else {
+          const names = ui.nextPreview.slice(0, 2).map(skinName).join('、') + (ui.nextPreview.length > 2 ? '…' : '');
+          showBanner('WAVE ' + String(n).padStart(2, '0'), '第 ' + n + ' 波 · ' + names, '「' + U.pick(VENTS.taunts) + '」');
+        }
+      });
+      const resultVent = Vue.computed(() => {
+        if (!G.result) return '';
+        return U.pick(G.result.win ? VENTS.wins : VENTS.loses);
+      });
       function paint() {
         Vue.nextTick(() => {
           document.querySelectorAll('canvas[data-k]').forEach(cv => Sprites.stamp(cv, cv.dataset.k));
@@ -179,7 +227,7 @@
       function boss() { window.BossKey.trigger(); }
       function quit() { G.backHome(); }
       function retry(revenge) {
-        G.start(G.level.id, G.dailyTags, G.isDaily, G.diff.key, !!revenge);
+        G.start(G.level.id, G.dailyTags, G.isDaily, G.diff.key, !!revenge, G.roleKey);
       }
       function shareResult() {
         const r = G.result;
@@ -190,7 +238,7 @@
           setTimeout(() => { shareOk.value = false; }, 1600);
         });
       }
-      return { ui, US, G, stage, sp, isLastWave, panelPos, nextId, starTip, shareOk, towerCost, pick, onClick, onMove, toggleSfx, boss, quit, retry, shareResult, CARD_RARE, TOWER_ORDER, TOWER_DATA };
+      return { ui, US, G, stage, sp, isLastWave, panelPos, nextId, starTip, shareOk, banner, skinName, resultVent, towerCost, pick, onClick, onMove, toggleSfx, boss, quit, retry, shareResult, CARD_RARE, TOWER_ORDER, TOWER_DATA };
     }
   };
   window.GAME_UI = { GameScreen };

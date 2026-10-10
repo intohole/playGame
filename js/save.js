@@ -2,7 +2,7 @@
   const KEY = 'salary-td-save-v1';
   const DEFAULTS = {
     ver: 1, gems: 3, stars: {}, crisisStars: {}, tech: { coffee: 0, admin: 0, hrq: 0, fin: 0, rage: 0 },
-    ach: {}, endlessBest: 0, totalKills: 0, playCount: 0, wins: 0,
+    ach: {}, endlessBest: 0, totalKills: 0, playCount: 0, wins: 0, role: 'dev',
     ventCount: 0, rageCount: 0,
     lastSeen: Date.now(), daily: { date: '', stars: 0, streak: 0, best: 0, freeze: 0 }, chests: 0,
     settings: { sfx: true, autoWave: false, disguise: true }

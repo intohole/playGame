@@ -43,9 +43,9 @@
         setTimeout(() => { toasts.value = toasts.value.filter(t => t.id !== id); }, 3000);
       };
       function nav(s) { SFX.click(); ui.screen = s; checkHomeAch(); }
-      function play(id, diffKey) {
+      function play(id, diffKey, roleKey) {
         SFX.unlock();
-        G.start(id, [], false, diffKey);
+        G.start(id, [], false, diffKey, false, roleKey);
       }
       function playDaily(seed) {
         SFX.unlock();

@@ -19,6 +19,7 @@
       let r = this.base.rate;
       if (this.key === 'coffee') r *= 1 + 0.10 * (Save.load().tech.coffee || 0);
       r *= 1 + G.mods.rate;
+      if (this.key === 'keyboard' && G.mods.kbRate) r *= 1 + G.mods.kbRate;
       if (G.waveStartT > 0) r *= 1 + G.mods.waveStartRate;
       r *= 1 + G.rateBuff();
       if (G.dailyTags.includes('rate')) r *= 1.15;
