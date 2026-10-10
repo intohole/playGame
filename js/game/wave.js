@@ -1,7 +1,7 @@
 (function () {
   const COST = { intern: 1, msg: 1.1, sheet: 0.7, robot: 3, balloon: 1.6, hr: 2.6, ghost: 2, blame: 1.8, minion: 0.5 };
   function waveHpMul(level, w) {
-    let m = level.hpMul * (1 + 0.22 * (w - 1) + 0.010 * (w - 1) * (w - 1));
+    let m = level.hpMul * (1 + 0.25 * (w - 1) + 0.013 * (w - 1) * (w - 1));
     if (level.endless) m *= Math.pow(1.085, w);
     return m;
   }
@@ -44,10 +44,10 @@
       return { spawns, count: spawns.length, isBoss: true };
     }
     const pool = level.pool;
-    const budget = 5.5 + w * 2.3;
+    const budget = 5.8 + w * 2.45;
     const avail = pool.filter((k, i) => w >= (i + 1) * 1.5);
     const kinds = shuffle(avail.length ? avail : [pool[0]]).slice(0, w < 3 ? 1 : w < 6 ? 2 : 3);
-    const gap = Math.max(0.5, 0.95 - w * 0.012);
+    const gap = Math.max(0.45, 0.9 - w * 0.013);
     let pi = Math.floor(Math.random() * (level.paths ? level.paths.length : 1));
     kinds.forEach((k, ki) => {
       const cost = COST[k] || 1;

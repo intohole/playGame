@@ -1,4 +1,4 @@
 .DS_Store
-out/test_out.txt
-out/test_final*.txt
+out/
+assets/src/
 __pycache__/

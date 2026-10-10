@@ -1,8 +1,8 @@
 (function () {
   window.DIFFS = [
-    { key: 'trainee', name: '试用期', icon: '🌱', hpMul: 0.85, goldMul: 1, livesMul: 1, desc: 'HR 手下留情，敌人生命 -15%，适合熟悉职场' },
-    { key: 'staff', name: '正式工', icon: '💼', hpMul: 1, goldMul: 1, livesMul: 1, desc: '标准职场强度，原汁原味' },
-    { key: 'crisis', name: '裁员危机', icon: '🔥', hpMul: 1.45, goldMul: 0.85, livesMul: 0.5, affix: true, bonusGem: 3, desc: '深夜加班：敌命 +45%、金币 -15%、生命减半、怪带精英词缀，通关 +3💎' }
+    { key: 'trainee', name: '试用期', icon: '🌱', hpMul: 0.8, goldMul: 1.05, livesMul: 1, desc: 'HR 手下留情，敌人生命 -20%、金币 +5%，适合熟悉职场' },
+    { key: 'staff', name: '正式工', icon: '💼', hpMul: 1, goldMul: 1, livesMul: 1, desc: '标准职场强度，波波紧绷，刚刚能过才是常态' },
+    { key: 'crisis', name: '裁员危机', icon: '🔥', hpMul: 1.6, goldMul: 0.8, livesMul: 0.5, affix: true, bonusGem: 3, desc: '深夜加班：敌命 +60%、金币 -20%、生命减半、怪带精英词缀，通关 +3💎' }
   ];
   window.AFFIXES = [
     { key: 'fast', name: ' acceleration', icon: '⚡', tag: '加速', desc: '移速 +50%' },

@@ -1,5 +1,14 @@
 (function () {
   let time = 0;
+  const TEX = {};
+  function loadTex(key, url) {
+    const img = new Image();
+    img.onload = () => { R.staticKey = null; };
+    img.src = url;
+    TEX[key] = img;
+  }
+  loadTex('floor', 'assets/floor.png');
+  loadTex('path', 'assets/path.png');
   const R = {
     staticCv: null, staticKey: null, portals: [],
     render(G) {
@@ -52,6 +61,13 @@
     floor(x) {
       x.fillStyle = '#3b3f47';
       x.fillRect(0, 0, CANVAS_W, CANVAS_H);
+      const fi = TEX.floor;
+      if (fi && fi.complete && fi.naturalWidth) {
+        const pat = x.createPattern(fi, 'repeat');
+        pat.setTransform(new DOMMatrix().scale(60 / fi.naturalWidth));
+        x.fillStyle = pat;
+        x.fillRect(0, 0, CANVAS_W, CANVAS_H);
+      }
       for (let gx = 0; gx < 20; gx++) for (let gy = 0; gy < 12; gy++)
         if ((gx + gy) % 2) { x.fillStyle = 'rgba(255,255,255,0.018)'; x.fillRect(gx * 48, gy * 48, 48, 48); }
       x.fillStyle = 'rgba(0,0,0,0.05)';
@@ -81,6 +97,15 @@
         this.trace(x, p);
         x.strokeStyle = '#40311f'; x.lineWidth = 28;
         this.trace(x, p);
+        const pi = TEX.path;
+        if (pi && pi.complete && pi.naturalWidth) {
+          const pat = x.createPattern(pi, 'repeat');
+          pat.setTransform(new DOMMatrix().scale(64 / pi.naturalWidth));
+          x.globalAlpha = 0.72;
+          x.strokeStyle = pat; x.lineWidth = 28;
+          this.trace(x, p);
+          x.globalAlpha = 1;
+        }
         x.strokeStyle = 'rgba(0,0,0,0.14)'; x.lineWidth = 1.2;
         for (let d = 24; d < p.total; d += 48) {
           const pt = p.at(d);

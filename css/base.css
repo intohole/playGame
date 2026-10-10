@@ -26,9 +26,11 @@ html, body { height: 100%; }
 body {
   background:
     radial-gradient(110% 80% at 50% 12%, rgba(245, 158, 66, .05) 0%, transparent 55%),
+    url('../assets/rug.png'),
     repeating-linear-gradient(0deg, transparent 0 47px, rgba(85, 70, 43, .07) 47px 48px),
     repeating-linear-gradient(90deg, transparent 0 47px, rgba(85, 70, 43, .07) 47px 48px),
     radial-gradient(120% 90% at 50% 30%, #191309 0%, var(--bg) 55%, #070503 100%);
+  background-blend-mode: normal, soft-light, normal, normal, normal;
   color: var(--ink);
   font-family: ui-sans-serif, -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
   overflow: hidden;
